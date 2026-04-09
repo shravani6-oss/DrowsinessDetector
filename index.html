@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Driver Drowsiness Detection System AI Dashboard">
+    <title>Driver Drowsiness Detection</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons (Bootstrap Icons) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dark-theme">
+    <div class="container-fluid px-4 d-flex flex-column min-vh-100 py-4">
+        
+        <!-- Header -->
+        <header class="d-flex justify-content-between align-items-center mb-4 dashboard-header fade-in">
+            <div>
+                <h1 class="h3 fw-bold title-neon text-uppercase tracking-wider m-0">Driver Monitoring Engine <span class="text-muted fs-6">v2.0</span></h1>
+                <p class="text-muted subtitle m-0 mt-1" id="dynamicSystemStatus">System awaiting initialization...</p>
+            </div>
+            <div class="badge bg-outline-info blinking-dot" id="systemBadge">DISCONNECTED</div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="row flex-grow-1">
+            
+            <!-- Video Feed Card -->
+            <div class="col-lg-7 col-xl-8 mb-4 d-flex flex-column panel-animation">
+                <div class="glass-card video-card p-3 h-100 d-flex flex-column">
+                    <div class="card-header d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
+                        <span class="text-uppercase small fw-bold text-muted"><i class="bi bi-camera-video me-2"></i>Live Optics</span>
+                        <div class="text-end small font-monospace overlay-stats-header">
+                            <span class="text-muted">Real-Time Performance Metrics</span> | FPS: <span id="fpsCount">0</span> | LATENCY: <span id="pingCount">--</span>ms | RES: 720p
+                        </div>
+                    </div>
+                    
+                    <div class="video-container position-relative overflow-hidden rounded flex-grow-1 d-flex flex-column justify-content-center bg-black border-glow">
+                        <img id="videoFeed" src="" alt="" class="img-fluid w-100 stream-element" style="display: none; height: 100%; object-fit: cover;">
+                        <div id="videoPlaceholder" class="text-center text-muted d-flex flex-column align-items-center justify-content-center h-100 py-5">
+                            <i class="bi bi-camera-video-off display-1 mb-3 opacity-25"></i>
+                            <p class="font-monospace text-uppercase tracking-wider small">Awaiting Video Input</p>
+                        </div>
+                        
+                        <div class="overlay-reticle overlay-ui"></div>
+                    </div>
+
+                    <div class="control-panel d-flex justify-content-between mt-3 flex-shrink-0">
+                        <button id="toggleDetectionBtn" class="btn btn-action btn-start d-flex align-items-center justify-content-center px-4 py-2 w-100">
+                            <i class="bi bi-power me-2 fs-5"></i> <span class="fw-bold tracking-wider text-uppercase">Initialize System</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Panel: Stats & Alerts -->
+            <div class="col-lg-5 col-xl-4 mb-4 panel-animation d-flex flex-column" style="animation-delay: 0.15s">
+                
+                <!-- Status & Alertness Score Container -->
+                <div class="glass-card status-card p-3 text-center mb-3 flex-shrink-0">
+                    <h5 class="text-muted small text-uppercase fw-bold mb-2 tracking-wider">Driver Status</h5>
+                    <div class="status-indicator d-flex align-items-center justify-content-between p-3 rounded" id="driverStatusWrapper">
+                        <div class="text-start">
+                            <i class="bi bi-shield-check status-icon inactive" id="statusIcon"></i>
+                            <h3 class="fw-bold m-0 tracking-wider mt-1" id="driverStatusText">MONITORING</h3>
+                        </div>
+                        <div class="alertness-dial d-flex flex-column align-items-end">
+                            <span class="display-4 fw-bold font-monospace" id="alertnessScore">--</span>
+                            <span class="small text-uppercase tracking-wider text-muted">Alertness Score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Explainability Data -->
+                <div class="glass-card info-card p-3 mb-3 flex-shrink-0 bg-dark-gradient">
+                    <h5 class="text-muted small text-uppercase fw-bold mb-3 tracking-wider"><i class="bi bi-cpu me-2"></i>AI Explainability</h5>
+                    
+                    <div class="row g-2 font-monospace small">
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary rounded">
+                                <span class="text-muted d-block">Eye Aspect Ratio (EAR)</span>
+                                <span class="fs-5 fw-bold" id="metricEar">0.00</span> <span class="text-muted ms-1">| Thr: 0.25</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary rounded">
+                                <span class="text-muted d-block">Mouth Ratio (MAR)</span>
+                                <span class="fs-5 fw-bold" id="metricMar">0.00</span> <span class="text-muted ms-1">| Thr: 0.50</span>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <div class="p-2 border border-secondary rounded d-flex justify-content-between align-items-center" id="drowsyDurationContainer">
+                                <span><i class="bi bi-stopwatch text-warning me-1"></i> Drowsiness Duration</span>
+                                <span class="fs-5 fw-bold text-warning" id="metricDuration">0.0s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Summary Card -->
+                <div class="glass-card summary-card p-3 mb-3 flex-shrink-0">
+                    <h5 class="text-muted small text-uppercase fw-bold mb-2 tracking-wider"><i class="bi bi-bar-chart me-2"></i>Session Summary</h5>
+                    <div class="d-flex justify-content-between text-center font-monospace small">
+                        <div>
+                            <span class="d-block fs-5 text-info" id="sessionTime">00:00</span>
+                            <span class="text-muted" style="font-size: 0.7rem;">UPTIME</span>
+                        </div>
+                        <div>
+                            <span class="d-block fs-5 text-danger" id="totalAlerts">0</span>
+                            <span class="text-muted" style="font-size: 0.7rem;">TOTAL ALERTS</span>
+                        </div>
+                        <div>
+                            <span class="d-block fs-5 text-warning" id="maxDrowsy">0.0s</span>
+                            <span class="text-muted" style="font-size: 0.7rem;">MAX DROWSY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Console -->
+                <div class="glass-card alert-card p-3 flex-grow-1 d-flex flex-column min-h-200">
+                    <h5 class="text-muted small text-uppercase fw-bold mb-2 tracking-wider d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-terminal me-2"></i>System Log</span>
+                        <button class="btn btn-sm btn-outline-secondary py-0 px-2 border-0 small text-uppercase tracking-wider" id="clearLogBtn">Clear</button>
+                    </h5>
+                    <div class="log-container border border-dark rounded p-2 font-monospace small position-relative flex-grow-1 overflow-auto" id="logContainer">
+                        <div class="log-entry text-muted"><span class="text-secondary">[00:00:00]</span> SYSTEM: Telemetry stream disconnected.</div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-auto text-center py-2 fade-in mt-3 border-top border-dark-subtle opacity-50">
+            <small class="text-muted text-uppercase tracking-wider font-monospace">
+                &copy; <span id="currYear"></span> AI Core Systems &bull; Powered by PyTorch &bull; Real-Time AI System
+            </small>
+        </footer>
+    </div>
+
+    <!-- Audio Element for Alarm -->
+    <audio id="alarmAudio" loop preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
