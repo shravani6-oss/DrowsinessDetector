@@ -12,5 +12,9 @@ dependencies = [
     "Flask>=3.0.0",
     "opencv-python-headless>=4.8.0",
     "mediapipe==0.10.14",
-    "numpy>=1.20,<2.0.0"
+    "numpy>=1.20,<2.0.0",
+    "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:app"
