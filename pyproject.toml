@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driver-drowsiness-detection"
+version = "1.0.0"
+description = "A real-time driver drowsiness detection environment using MediaPipe and Flask."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "Flask>=3.0.0",
+    "opencv-python-headless>=4.8.0",
+    "mediapipe==0.10.14",
+    "numpy>=1.20,<2.0.0"
+]
