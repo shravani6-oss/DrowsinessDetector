@@ -1,0 +1,8 @@
+spec_version: 1
+name: driver-drowsiness-detection
+version: "1.0.0"
+description: >
+  A real-time driver drowsiness detection environment using MediaPipe and OpenCV.
+type: space
+runtime: docker
+port: 7860
